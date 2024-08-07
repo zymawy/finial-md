@@ -7,12 +7,7 @@ import {
 import { Text, View } from '../components/Themed';
 import {RootStackScreenProps} from "../types";
 import Button from "../components/Button";
-import useStateManagement from "../StateManagement/StateManagement";
-import {MonoText} from "../components/StyledText";
 import {primary} from "../constants/Colors";
-import * as SecureStore from "expo-secure-store";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Actions from "../StateManagement/Actions";
 import useCartManagement from "../StateManagement/CartManagement";
 import {useState} from "react";
 import {TabActions} from "@react-navigation/native";
@@ -23,43 +18,7 @@ export default function AccountScreen({
 										  navigation,
 										  route
 									  }: RootStackScreenProps<"AccountScreen">): JSX.Element {
-
-	const { state, dispatch } = useStateManagement();
 	const { dispatch: cartDispatch } = useCartManagement();
-	const [user, setUser] = useState(state.user);
-
-	const [isEditing, setIsEditing] = useState(false);
-	const handleChange = (field, value) => {
-		setUser({
-			...user,
-			[field]: value,
-		});
-	};
-	const logout = async () => {
-				try {
-					await AsyncStorage.clear();
-					await  AsyncStorage.removeItem('@cart')
-					await SecureStore.deleteItemAsync("user-token");
-					dispatch(
-						Actions.setUser(null)
-					);
-
-					cartDispatch(
-						Actions.setCartItems([])
-					);
-					cartDispatch(
-						Actions.setTotalCartItems(0)
-					)
-
-					cartDispatch(
-						Actions.setTotalPrice(0)
-					)
-
-				} catch (err) {
-					console.warn(err);
-				}
-		navigation.navigate("Login");
-	}
 
 	return (
 		<View style={styles.container}>
@@ -70,16 +29,13 @@ export default function AccountScreen({
 					style={styles.image}
 				></ImageBackground>
 			</View>
-			<MonoText>{state.user?.name}</MonoText>
 			<View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
 			<View style={styles.buttonGroup}>
-				<Button text="Edit"  disabled={false} onPress={() => setIsEditing(true)} />
 				<Button text="Orders" disabled={false} onPress={() =>
 					navigation.dispatch(
 						TabActions.jumpTo("OrderScreen")
 					)
 				} />
-				<Button text="Logout" onPress={logout} disabled={false} />
 			</View>
 		</View>
 	);

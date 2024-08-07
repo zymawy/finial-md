@@ -7,7 +7,7 @@ import {
 	Dimensions, Animated,TouchableOpacity
 } from 'react-native';
 import {RootStackScreenProps} from "../types";
-import { storeData } from '../StateManagement/CartManagement';
+import useCartManagement, { storeData } from '../StateManagement/CartManagement';
 import {View, ScrollView} from "../components/Themed";
 import {FontAwesome} from "@expo/vector-icons";
 import Carousel, { Pagination } from 'react-native-new-snap-carousel';
@@ -19,7 +19,7 @@ export default function PerfumeScreen({
 	navigation,
    route
   }: RootStackScreenProps<"PerfumeDetail">) {
-
+	const { state: cartState, dispatch: cartDispatch } = useCartManagement();
 	// @ts-ignore
 	const { perfume = null } = route?.params;
 
@@ -38,14 +38,9 @@ export default function PerfumeScreen({
 		);
 	};
 
-
-	const onAddToCart = async  () => {
-		storeData(perfume)
-			.then(async r => {
-				DeviceEventEmitter.emit('cart.added', {perfume});
-				console.warn('Store Done')
-		});
-	}
+	const onAddToCart = () => {
+		storeData(perfume, cartDispatch);
+	};
 
 	return (
 		<ScrollView style={styles.container}>

@@ -3,8 +3,8 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Carousel, { Pagination } from 'react-native-new-snap-carousel';
 import {TabActions, useNavigation} from '@react-navigation/native';
 import { Dimensions } from 'react-native';
-import customAxios from "../axios/axios";
 import { primary } from '../constants/Colors';
+import { getRandomPerfumes } from '../data/perfumes';
 
 const { width } = Dimensions.get('window');
 
@@ -21,30 +21,23 @@ const FeaturedProductCarousel = ({
 	}, []);
 
 	const fetchProducts = async () => {
-		try {
 			setProducts((prev) => ({ ...prev, loading: true }));
-			const res = await customAxios.get("/perfumes?limited=3");
+
 			setProducts((prev) => ({
 				...prev,
-				data: res.data.data,
+				data: getRandomPerfumes(3),
 				loading: false,
 			}));
-		} catch (err) {
-			setProducts((prev) => ({
-				...prev,
-				error: err?.message || 'There Has Been Some Error ',
-				loading: false,
-			}));
-		}
 	};
 
 	const renderItem = ({ item }) => {
+
 		return (
 			<TouchableOpacity onPress={() => navigation.dispatch(
 				TabActions.jumpTo("PerfumeDetail", { perfume: item })
 			)}>
 				<View style={styles.card}>
-					<Image source={{ uri: item.image }} style={styles.image} />
+					<Image source={item.image} style={styles.image} />
 					<Text style={styles.name}>{item.name}</Text>
 					<Text style={styles.price}>${Number(item.price).toFixed(2)}</Text>
 				</View>

@@ -1,179 +1,173 @@
 import React from 'react';
 import {
-	Text,
-	FlatList,
-	StyleSheet,
-	Image,
-	TouchableOpacity, Alert
+    Text,
+    FlatList,
+    StyleSheet,
+    Image,
+    TouchableOpacity,
+    Alert,
+    View
 } from 'react-native';
 import Button from "../components/Button";
-// Importing a custom button component
-
-import {View, ScrollView} from "../components/Themed";
-import customAxios from "../axios/axios";
 import Actions from "../StateManagement/Actions";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import useCartManagement from "../StateManagement/CartManagement";
+import useCartManagement, {
+	createOrder,
+	getCartItems, getOrders
+} from "../StateManagement/CartManagement";
+import { FontAwesome } from "@expo/vector-icons";
+import { primary } from '../constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const CartScreen = () => {
+    const { state, dispatch } = useCartManagement();
 
-const ShoppingCartScreen = () => {
-	const { state, dispatch } = useCartManagement();
-	const calculateTotal = () => {
-		let total = 0;
-		console.log(state.cartItems)
-		state.cartItems.forEach(item => total += item.totalPrice);
-		return total;
-	}
+    const calculateTotal = () => {
+        return state.cartItems.reduce((total, item) => total += Number(item.totalPrice), 0);
+    };
 
-	const handleCheckout = () => {
-		// Implement checkout functionality here
-		console.log('Proceeding to Checkout');
-	}
+    const completeOrder = async () => {
+		const id = await createOrder();
+		dispatch(Actions.setTotalCartItems(0));
+		dispatch(Actions.setCartItems([]));
+		dispatch(Actions.setTotalPrice(0));
 
-	async function completeOrder  () {
+		dispatch({ type: 'ORDER_PLACED', orders: await getOrders() });
 
+		Alert.alert('Success', `Your order #${id} has been placed 🎉!`);
 
-		console.log({
-			cart_items_ids: state.cartItems
-		})
-		const res =  await customAxios.post('/carts', {
-			cart_items_ids: state.cartItems.map((item: object) => {
-				return {'id': item.id, 'qty': item.qty}
-			})
-		})
+    };
 
-		if (res.data) {
-			dispatch(
-				Actions.setTotalCartItems(0)
-			)
-			dispatch(
-				Actions.setCartItems([])
-			)
-			dispatch(
-				Actions.setTotalPrice(0)
-			)
+    const removeItem = async (itemId) => {
+        let updatedCartItems = state.cartItems.filter(item => item.id !== itemId);
+        await AsyncStorage.setItem('@carts', JSON.stringify(updatedCartItems));
+		dispatch({ type: 'REMOVE_CART_ITEM', items:  updatedCartItems });
+      };
 
-			await AsyncStorage.clear();
-			await  AsyncStorage.removeItem('@cart')
-		}
+    const renderItem = ({ item }) => (
+        <View style={styles.itemContainer}>
+            <Image style={styles.thumbnail} source={{ uri: item.image }} />
+            <View style={styles.itemDetailsContainer}>
+                <Text style={styles.itemName}>{item.name}</Text>
+                <Text style={styles.itemDetails}>Quantity: {item.qty}</Text>
+                <Text style={styles.itemDetails}>Price: ${Number(item.totalPrice).toFixed(2)}</Text>
+            </View>
+            <TouchableOpacity style={styles.removeItemButton} onPress={() => removeItem(item.id)}>
+                <Text style={styles.buttonText}>
+				<FontAwesome name={'trash-o'} size={20} color="#fff" style={styles.icon} />
+				</Text>
+            </TouchableOpacity>
+        </View>
+    );
 
-		Alert.alert(
-			"Success",
-			`Wow, order placed with #${res.data.id} 🎉`,
-			[
-				{ text: "OK" }
-			]
-		);
-	}
-	const renderItem = ({ item }) => (
-		<View style={styles.itemContainer}>
-			<Text style={styles.itemName}>{item.name}</Text>
-			<Text style={styles.itemDetails}>Quantity: {item.qty}</Text>
-			<Text style={styles.itemDetails}>Price: ${item.totalPrice}</Text>
-			<Text style={styles.itemDetails}>Subtotal: ${item.totalPrice}</Text>
-		</View>
-	);
+    const renderTotals = () => (
+        <View style={styles.totalContainer}>
+            <Text style={styles.totalText}>Total: ${calculateTotal().toFixed(2)}</Text>
+        </View>
+    );
 
-	function renderTotals() {
-		return (
-			<View style={styles.itemContainer}>
-				<Text style={styles.totalText}></Text>
-				<Text style={styles.totalText}></Text>
-				<Text style={styles.totalText}>Total: ${calculateTotal()}</Text>
-			</View>
-		);
-	}
-
-
-	return (
+    return (
 		<View style={styles.container}>
-			<FlatList
-				data={state.cartItems}
-				keyExtractor={(item) => item.id.toString()}
-				renderItem={({ item }) => (
-					<View style={styles.itemContainer}>
-						<Image style={styles.thumbnail} source={{ uri: item.image }} />
-						<Text style={styles.itemText}>{item.name} x {item.qty}</Text>
-						<Text style={styles.itemText}>${item.totalPrice}</Text>
-						<TouchableOpacity style={styles.removeItemButton} onPress={() => removeItem(item.id)}>
-							<Text style={styles.buttonText}>Remove</Text>
-						</TouchableOpacity>
-					</View>
-				)}
-				ListFooterComponent={renderTotals}
-			/>
-			<View style={styles.totalContainer}>
-				<Button style={styles.checkoutButton} text="Proceed to Checkout" onPress={completeOrder}  disabled={false}/>
-			</View>
-		</View>
-	);
+        <FlatList
+            data={state.cartItems}
+            keyExtractor={(item) => item?.id?.toString()}
+            renderItem={renderItem}
+            contentContainerStyle={styles.flatListContent}
+        />
+        <View style={styles.footer}>
+            {renderTotals()}
+            <Button
+                style={styles.checkoutButton}
+                text="Proceed to Checkout"
+                onPress={completeOrder}
+                disabled={state.cartItems.length <= 0}
+				icon="money"
+				disabledText="Proceed to Checkout"
+				disabledColor={primary}
+				disabledIcon="money"
+            />
+        </View>
+    </View>
+    );
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		padding: 10,
-	},
-	itemContainer: {
-		padding: 10,
-		backgroundColor: '#f8f8f8',
-		shadowColor: '#000',
-		shadowOffset: { width: 0, height: 1 },
-		shadowOpacity: 0.3,
-		shadowRadius: 1,
-		elevation: 3,
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		borderWidth: 1,
-		borderColor: 'lightgray',
-		marginBottom: 10,
-		borderRadius: 5,
-	},
-	thumbnail: {
-		width: 50,
-		height: 50,
-		marginRight: 10,
-	},
-	//
-	itemName: {
-		fontSize: 18,
-		fontWeight: 'bold',
-	},
-	itemDetails: {
-		fontSize: 16,
-	},
-	total: {
-		fontSize: 24,
-		fontWeight: 'bold',
-		textAlign: 'right',
-		marginBottom: 20,
-		backgroundColor: '#f8f8f8',
-	},
-	checkoutButton: {
-		backgroundColor: '#ff6347',
-		color: '#fff',
-	},
-	itemText: {
-		fontSize: 16,
-		backgroundColor: '#f8f8f8',
-	},
-	totalContainer: {
-		marginTop: 20,
-	},
-	totalText: {
-		fontSize: 20,
-		fontWeight: 'bold',
-	},
-	removeItemButton: {
-		backgroundColor: 'red',
-		padding: 10,
-		borderRadius: 5,
-	},
-	buttonText: {
-		color: 'white',
-		fontWeight: 'bold',
-	},
+    container: {
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#fff',
+    },
+    flatListContent: {
+        paddingBottom: 120,
+    },
+    itemContainer: {
+        flexDirection: 'row',
+        padding: 10,
+        backgroundColor: '#f8f8f8',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.3,
+        shadowRadius: 1,
+        elevation: 3,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'lightgray',
+        marginBottom: 10,
+        borderRadius: 5,
+    },
+    thumbnail: {
+        width: 50,
+        height: 50,
+        marginRight: 10,
+    },
+    itemDetailsContainer: {
+        flex: 1,
+    },
+    itemName: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    itemDetails: {
+        fontSize: 16,
+    },
+    footer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        padding: 10,
+        borderTopWidth: 1,
+        borderTopColor: 'lightgray',
+    },
+    totalContainer: {
+        marginVertical: 10,
+        alignItems: 'flex-end',
+    },
+    totalText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    checkoutButton: {
+        backgroundColor: primary,
+        padding: 15,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    removeItemButton: {
+        backgroundColor: 'red',
+        padding: 10,
+        borderRadius: 5,
+    },
+    buttonText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
+	icon: {
+        marginRight: 5,
+        color: '#fff',
+    },
 });
 
-export default ShoppingCartScreen;
+
+export default CartScreen;

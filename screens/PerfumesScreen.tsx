@@ -2,80 +2,51 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import {
 	ActivityIndicator,
-	Dimensions, FlatList,
+	 FlatList,
 	StyleSheet
 } from 'react-native';
 
 import { Text, View } from '../components/Themed';
 import {RootStackScreenProps} from "../types";
-import CardPerfume from "../components/CardPerfume";
-import {TabActions} from "@react-navigation/native";
 import {useEffect, useState} from "react";
-import customAxios from "../axios/axios";
-import {storeData} from "../StateManagement/CartManagement";
-import {FontAwesome} from "@expo/vector-icons";
 import { primary, secondary } from "../constants/Colors";
+import { getPerfumesByReference } from '../data/perfumes';
+import Perfume from '../components/Perfume';
 
 export default function PerfumesScreen({
 										   navigation,
 										   route
 								   }: RootStackScreenProps<"PerfumesScreen">) {
 
-	const [perfumes, setPerfumes] = useState<{
-		data: string[];
-		error: string;
-		loading: boolean;
-		isBanner: boolean;
-	}>({ data: [], error: "", loading: false,  isBanner: false });
-
-	const { width } = Dimensions.get('window');
-	const cardWidth = width / 2 - 20;
-	const category = route.params;
-
-	console.log(category);
+	    const [perfumes, setPerfumes] = useState<{
+        data: any[];
+        error: string;
+        loading: boolean;
+        isBanner: boolean;
+    }>({ data: [], error: "", loading: false, isBanner: false });
 	
-
-	const onAddToCart = async  (perfume) => {
-		storeData(perfume)
-			.then(async r => {
-				DeviceEventEmitter.emit('cart.added', {perfume});
-				console.warn('Store Done')
-			});
-	}
-
-
+	const { reference_type, reference_id } = route.params;
+	
 	useEffect(() => {
-		const fetchPerfumes = async () => {
-			try {
-				setPerfumes((prev) => ({ ...prev, loading: true }));
-				const res = await customAxios.get("/perfumes");
-				setPerfumes((prev) => ({
-					...prev,
-					data: res.data.data,
-					loading: false,
-				}));
-			} catch (err) {
-				setPerfumes((prev) => ({
-					...prev,
-					error: err?.message || 'There Has Been Some Error ',
-					loading: false,
-				}));
-			}
-		};
-
-		fetchPerfumes();
-	}, []);
+		if(reference_type === 'all') {
+			setPerfumes({
+				data: [],
+				error: "Loading",
+				loading: true,
+				isBanner: false,
+			});
+			setTimeout(() => {
+				setPerfumes(getPerfumesByReference(reference_type, reference_id));
+			}, 300)
+		} else {
+			setPerfumes(getPerfumesByReference(reference_type, reference_id));
+		}
+	}, [reference_type, reference_id]);
+	
 
 	const  renderPerfume = ({item: perfume, index: index}) =>  {
 		return (
-			<CardPerfume
-				perfume={perfume}
-				style={{ width: cardWidth }} // set the width of each card here
-				onProductPress={() => navigation.dispatch(
-					TabActions.jumpTo("PerfumeDetail", { perfume: perfume })
-				)}
-				onAddToCart={() => onAddToCart(perfume)}
-			/>
+			<Perfume perfume={perfume} />
 		)
 	}
 
@@ -91,8 +62,8 @@ export default function PerfumesScreen({
 				data={perfumes.data}
 				renderItem={renderPerfume}
 				keyExtractor={(item, index) => index.toString()}
-				numColumns={2} // number of cards in one row
-				columnWrapperStyle={styles.row} // applying the styles to each row
+				numColumns={2}
+				columnWrapperStyle={styles.row}
 			/>
 		</View>)
 	);

@@ -8,9 +8,11 @@ import { LinkingOptions } from "@react-navigation/native";
 import * as Linking from "expo-linking";
 
 import { RootStackParamList } from "../types";
+const prefix = Linking.createURL("/");
+
 
 const linking: LinkingOptions<RootStackParamList> = {
-  prefixes: [Linking.openURL("/")],
+  prefixes: [prefix],
   config: {
     screens: {
       Root: {
@@ -36,10 +38,7 @@ const linking: LinkingOptions<RootStackParamList> = {
           },
         },
       },
-      Modal: "modal",
       NotFound: "*",
-      Login: "login",
-      Register: "register",
     },
   },
 };

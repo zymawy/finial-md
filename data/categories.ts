@@ -1,4 +1,4 @@
-export const DRAWER_CATECORIES = [
+export const CATECORIES = [
     {
         id:"men",
         title: "Men's Perfumes",

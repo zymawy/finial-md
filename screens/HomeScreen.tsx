@@ -7,67 +7,54 @@ import {
 } from "react-native";
 import {View, ScrollView, SafeAreaView} from "../components/Themed";
 import { RootTabScreenProps } from "../types";
-import useStateManagement from "../StateManagement/StateManagement";
-import WelcomeText from "../components/WelcomeText";
 import {useEffect, useState} from "react";
 import {primary} from "../constants/Colors";
 import FeaturedProductCarousel from "../components/FeaturedProductCarousel";
 import {StatusBar} from "expo-status-bar";
-import isAuthenticated from "../hooks/useAuthenticated";
 import Carousel, { Pagination } from 'react-native-new-snap-carousel';
-import NetInfo from '@react-native-community/netinfo';
 import { BANNERS, BRANDS, PERUMES, getRandomPerfumes } from "../data/perfumes";
 import Perfume from "../components/Perfume";
-import Categories from "../components/Categories";
+import { TabActions } from "@react-navigation/native";
+import Testimonial from "../components/Testimonial";
+import { TESTIMONIALS } from "../data/testimonials";
 
 
 export default function HomeScreen({ navigation }: RootTabScreenProps<"Home">) {
 	const { width } = Dimensions.get('window');
-  const { state, dispatch } = useStateManagement();
 	const [brands, setBrands] = useState<{
 		data: string[];
 		error: string;
 		loading: boolean;
 		isBanner: boolean;
 	}>({ data: [], error: "", loading: false,  isBanner: false });
-	const isAuth = isAuthenticated()
-	const [isConnected, setIsConnected] = useState(false);
 	const bannerRef = useRef(null);
 	const [randomPerfumes, setRandomPerfumes] = useState([]);
-
-
-	useEffect(() => {
-		const unsubscribe = NetInfo.addEventListener(state => {
-			console.log("Connection type", state.type);
-			console.log("Is connected?", state.isConnected);
-			setIsConnected(state.isConnected);
-			});
-
-		setRandomPerfumes(getRandomPerfumes(6));
-
-	return () => {
-		unsubscribe();
-		};
-	}, []);
+	const [testimonials, setTestimonials] = useState([]);
 
 
 	const renderPerfume = ({ item }) =>
 		<Perfume perfume={item}/>;
 
-	const renderBrands = ({ item }) => (	
+
+	const renderTestimonial = ({ item, index }, parallaxProps) =>
+		<Testimonial testimonial={item} parallaxProps={parallaxProps} />;
+
+	const renderBrands = ({ item }) => (
 			<View style={styles.itemContainer}>
 				<TouchableWithoutFeedback
-				onPress={() => {
-					// console.log(item);
-					
-				}}
+				onPress={() => navigation.dispatch(
+					TabActions.jumpTo("PerfumesScreen", {
+						reference_type: 'brand',
+						reference_id: item.id
+					 })
+				)}
 				>
-					<ImageBackground 
+					<ImageBackground
 					source={item.image}
 					style={styles.image}
 					resizeMode="contain"
 					/>
-				</TouchableWithoutFeedback>	
+				</TouchableWithoutFeedback>
 			</View>
 	);
 	const renderBanner = ({ item }) => {
@@ -77,18 +64,24 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<"Home">) {
 	};
 
 
+	useEffect(() => {
+	setRandomPerfumes(getRandomPerfumes(6));
+	setTestimonials(TESTIMONIALS);
+	}, [setTestimonials, setRandomPerfumes]);
+
+
   return (
 	<SafeAreaView>
 		 <ScrollView>
 			{/* @todo continue with search bar if time serve me.  */}
 			 {/* <SerachBar onSearch={handleSearch}  /> */}
-			{/* 
+			{/*
 
 			 const handleSearch = (searchText) => {
 		navigation.navigate('SearchScreen', { searchQuery: searchText });
 	}; */}
 
-	
+
 	{BANNERS.length <= 0 ? (
 			<View>
 				<ActivityIndicator size="large" color={primary} />
@@ -146,21 +139,40 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<"Home">) {
 				<FeaturedProductCarousel />
 
 
-				<Categories />
+
+				<FlatList
+				data={randomPerfumes}
+				renderItem={renderPerfume}
+				keyExtractor={(item, index) => index.toString()}
+				numColumns={2}
+				columnWrapperStyle={{ justifyContent: 'space-between' }}
+				style={styles.list}
+				scrollEnabled={false}
+				/>
+
 
 				<FeaturedProductCarousel />
 
-				<FlatList
-						 data={randomPerfumes}
-						 renderItem={renderPerfume}
-						 keyExtractor={(item, index) => index.toString()}
-						 numColumns={2}
-						 columnWrapperStyle={styles.row}
-						 style={styles.list}
-						 scrollEnabled={false}
-					 />
+				    <View style={styles.containerTestimonial}>
+							<Carousel
+								layout={'default'}
+								data={testimonials}
+								renderItem={renderTestimonial}
+								sliderWidth={width}
+								itemWidth={width * 0.8}
+								hasParallaxImages={true}
+								loop={true}
+								loopClonesPerSide={2}
+								autoplay={true}
+								autoplayDelay={500}
+								autoplayInterval={3000}
+								inactiveSlideScale={0.94}
+								inactiveSlideOpacity={0.7}
+							/>
+						</View>
 
-				<FeaturedProductCarousel 
+
+				<FeaturedProductCarousel
 				layoutCarousel="tinder"
 				layoutCardOffCarousel={3}
 				/>
@@ -179,7 +191,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<"Home">) {
 					autoplayDelay={500}
 					autoplayInterval={3000}
 					inactiveSlideScale={0.94}
-					inactiveSlideOpacity={0.7}	
+					inactiveSlideOpacity={0.7}
 				/>
 				 </View>
 			 )}
@@ -275,4 +287,8 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 10,
 		paddingVertical: 20,
 	},
+	containerTestimonial: {
+		flex: 1,
+		backgroundColor: '#f5f5f5',
+	}
 });

@@ -11,7 +11,7 @@ export default function SplashScreen() {
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 1000,
-        useNativeDriver: true, // Use native driver for better performance
+        useNativeDriver: true,
       }),
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   image: {
-    width: 300, 
+    width: 300,
     height: 300,
   },
 });

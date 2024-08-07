@@ -31,7 +31,6 @@ export type RootStackParamList = {
   CartScreen: undefined;
 	OrderScreen: undefined;
   BrandScreen:{brand: object};
-  SearchScreen:{brand: object};
   PerfumeScreen: undefined;
 };
 
@@ -47,7 +46,6 @@ export type RootTabParamList = {
 CartScreen: undefined;
 	OrderScreen: undefined;
   BrandScreen:{brand: object};
-	SearchScreen:undefined;
   PerfumeScreen: undefined;
 };
 

@@ -14,6 +14,33 @@ export default function reducer(state: any, action: any) {
     case AT.setTotalPrice:
       const totalPrice = action.totalPrice;
       return { ...state, totalPrice };
+      case 'SET_CART_ITEMS':
+        return {
+          ...state,
+			cartItems: action.items,
+			totalCartItems: action?.items?.length,
+			totalPrice: action?.items?.reduce((sum, item) => sum + item.totalPrice, 0),
+        };
+      case 'ADD_CART_ITEM':
+        return {
+          ...state,
+          cartItems: action.items,
+          totalCartItems: action?.items?.length,
+          totalPrice: action?.items?.reduce((sum, item) => sum + item.totalPrice, 0),
+        };
+      case 'REMOVE_CART_ITEM':
+        return {
+          ...state,
+			cartItems: action.items,
+			totalCartItems: action?.items?.length,
+			totalPrice: action?.items?.reduce((sum, item) => sum + item.totalPrice, 0),
+        };
+	  case 'ORDER_PLACED':
+		  console.log(action.orders.length)
+		  return {
+			  ...state,
+			  orders: action.orders,
+		  };
     default:
       return state;
   }

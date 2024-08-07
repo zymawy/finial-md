@@ -3,6 +3,7 @@ export const ACTION_TYPES = {
   setCartItems: 2,
   setTotalCartItems: 3,
   setTotalPrice: 4,
+  setOrders: 5,
 };
 
 export default class Actions {
@@ -21,5 +22,11 @@ export default class Actions {
 	static setTotalPrice(total: number) {
 
 		return {type: ACTION_TYPES.setTotalPrice, totalPrice: total}
+	}
+
+
+	static setOrders(orders: any) {
+
+		return {type: 'ORDER_PLACED', orders: orders}
 	}
 }

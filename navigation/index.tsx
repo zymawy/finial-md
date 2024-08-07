@@ -6,6 +6,8 @@ import {
 	DarkTheme,
 	DrawerActions,
   useNavigation,
+  TabActions,
+  useFocusEffect
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -13,7 +15,6 @@ import { ColorSchemeName, StyleSheet, TouchableOpacity } from "react-native";
 
 import { primary, secondary } from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
-import NotFoundScreen from "../screens/NotFoundScreen";
 import HomeScreen from "../screens/HomeScreen";
 import PerfumeScreen from "../screens/PerfumeScreen";
 import CartScreen from "../screens/CartScreen";
@@ -40,11 +41,10 @@ import Pressable from "../components/Pressable";
 import isAuthenticated from "../hooks/useAuthenticated";
 import SplashScreen from "../screens/SplashScreen";
 import PerfumesScreen from "../screens/PerfumesScreen";
-import BrandScreen from "../screens/BrandScreen";
 import OrderScreen from "../screens/OrderScreen";
-import SearchScreen from "../screens/SearchScreen";
-import useCartManagement from "../StateManagement/CartManagement";
-import { DRAWER_CATECORIES } from "../data/categories";
+import useCartManagement, { getCartItems } from "../StateManagement/CartManagement";
+import { CATECORIES } from "../data/categories";
+import Actions from "../StateManagement/Actions";
 
 export default function Navigation({
   colorScheme,
@@ -86,11 +86,6 @@ function RootNavigator() {
             component={DrawerNavigator}
             options={{ headerShown: false }}
           />
-          <Stack.Screen
-            name="NotFound"
-            component={NotFoundScreen}
-            options={{ title: "Oops!" }}
-          />
     </Stack.Navigator>
   );
 }
@@ -107,7 +102,23 @@ const BackButton = () => {
 
 function BottomTabNavigator() {
   const colorScheme = useColorScheme();
-  const { state } = useCartManagement();
+  const { state, dispatch } = useCartManagement();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Load cart items when the screen is focused
+      const loadCartItems = async () => {
+        try {
+          let perfumes = await getCartItems();
+
+          dispatch(Actions.setCartItems(perfumes));
+        } catch (e) {
+          console.warn(e);
+        }
+      };
+      loadCartItems();
+    }, [])
+  );
 
   return (
     <BottomTab.Navigator
@@ -154,7 +165,7 @@ function BottomTabNavigator() {
         name="Cart"
         component={CartScreen}
         options={({ navigation }: RootTabScreenProps<"CartScreen">) => ({
-          tabBarBadge: state?.totalCartItems,
+          tabBarBadge: state?.totalCartItems || null,
           headerTitleStyle: { fontFamily: "space-mono", fontWeight: "700" },
           headerTitleAlign: "center",
           tabBarIcon: ({ color }) => (
@@ -179,57 +190,14 @@ function BottomTabNavigator() {
           ),
         })}
       />
-		<BottomTab.Screen
-			name="SearchScreen"
-			component={SearchScreen}
-			options={({ navigation }: RootTabScreenProps<"SearchScreen">) => ({
-				headerTitleStyle: { fontFamily: "space-mono", fontWeight: "700" },
-				headerTitleAlign: "center",
-				tabBarIcon: ({ color }) => (
-					<Feather
-						name="package"
-						size={26}
-						color={color}
-						style={{ marginBottom: 10 }}
-					/>
-				),
-				headerLeft:  () => (
-          <Pressable
-          onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-        >
-          <Hamburger />
-        </Pressable>
-        ),
-				headerRight: () => (
-					<Pressable>
-						<Profile />
-					</Pressable>
-				),
-				tabBarButton: () => null,
-			})}
-		/>
 
 		<BottomTab.Screen
 			name="OrderScreen"
 			component={OrderScreen}
 			options={({ navigation }: RootTabScreenProps<"OrderScreen">) => ({
 				headerTitleStyle: { fontFamily: "space-mono", fontWeight: "700" },
+				headerLeft: (props) => <BackButton {...props} />,
 				headerTitleAlign: "center",
-				tabBarIcon: ({ color }) => (
-					<Feather
-						name="package"
-						size={26}
-						color={color}
-						style={{ marginBottom: 10 }}
-					/>
-				),
-				headerLeft: () => (
-          <Pressable
-          onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-        >
-          <Hamburger />
-        </Pressable>
-        ),
 				headerRight: () => (
 					<Pressable>
 						<Profile />
@@ -239,28 +207,34 @@ function BottomTabNavigator() {
 			})}
 		/>
 
-    
+
       <BottomTab.Screen
         name="PerfumeDetail"
         component={PerfumeScreen}
 		options={{
 			tabBarButton: () => null,
       headerLeft: (props) => <BackButton {...props} />,
-      headerShown: true, // Ensure header is shown
-      headerTitle: 'Perfume Detail', // Customize the header title
+      headerShown: true,
+      headerTitle: 'Perfume Detail',
 		}}
       />
-		<BottomTab.Screen
-			name="BrandScreen"
-			component={BrandScreen}
-			options={{
-				tabBarButton: () => null,
-			}}
-		/>
+
       <BottomTab.Screen
         name="PerfumesScreen"
         component={PerfumesScreen}
         options={({ navigation }: RootTabScreenProps<"PerfumesScreen">) => ({
+          initialParams: {
+            reference_type: 'all',
+            reference_id: null
+          },
+          tabBarButton: props => (
+            <TouchableOpacity {...props}  onPress={() => navigation.dispatch(
+              TabActions.jumpTo('PerfumesScreen', {
+                reference_type: 'all',
+                reference_id: null,
+              })
+            )} />
+          ),
           headerTitleStyle: { fontFamily: "space-mono", fontWeight: "700" },
           headerTitleAlign: "center",
           tabBarIcon: ({ color }) => (
@@ -282,7 +256,7 @@ function BottomTabNavigator() {
             <Pressable>
               <Profile />
             </Pressable>
-          ),
+          )
         })}
       />
       <BottomTab.Screen
@@ -323,11 +297,19 @@ function CustomDrawerContent(props) {
   return (
     <DrawerContentScrollView {...props}>
       <DrawerItemList {...props} />
-      {DRAWER_CATECORIES.map((category, index) => (
+      {CATECORIES.map((category, index) => (
         <DrawerItem
           key={category.id}
           label={category.title}
-          onPress={() => console.log(`Navigating to ${category.title}`)}
+          onPress={() => {
+            props.navigation.dispatch(
+              TabActions.jumpTo("PerfumesScreen", {
+                reference_type: 'category',
+                reference_id: category.id
+              })
+            );
+            props.navigation.closeDrawer();
+          }}
         />
       ))}
     </DrawerContentScrollView>
@@ -337,7 +319,7 @@ function CustomDrawerContent(props) {
 function DrawerNavigator() {
   return (
     <Drawer.Navigator
-    drawerContent={CustomDrawerContent}
+    drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         gestureEnabled: true,
         headerShown: false,

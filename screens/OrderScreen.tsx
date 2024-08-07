@@ -2,7 +2,8 @@ import React, {useEffect, useState} from 'react';
 import { FlatList, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import {RootStackScreenProps} from "../types";
 import { Text, View } from '../components/Themed';
-import customAxios from "../axios/axios";
+import useCartManagement, {getOrders} from "../StateManagement/CartManagement";
+import {primary} from "../constants/Colors";
 
 export default function OrderScreen({
 										  navigation,
@@ -16,14 +17,16 @@ export default function OrderScreen({
 		loading: boolean;
 		isBanner: boolean;
 	}>({ data: [], error: "", loading: false,  isBanner: false });
+
+	const { state, dispatch } = useCartManagement();
+
 	useEffect(() => {
 		const fetchPerfumes = async () => {
 			try {
 				setOrders((prev) => ({ ...prev, loading: true }));
-				const res = await customAxios.get("/orders");
 				setOrders((prev) => ({
 					...prev,
-					data: res.data.data,
+					data: state.orders,
 					loading: false,
 				}));
 			} catch (err) {
@@ -66,7 +69,7 @@ export default function OrderScreen({
 	return (
 		<View style={styles.container}>
 			<FlatList
-				data={orders.data}
+				data={state.orders}
 				renderItem={renderItem}
 				keyExtractor={item => item.id}
 			/>
@@ -130,7 +133,7 @@ const styles = StyleSheet.create({
 		color: '#000',
 	},
 	button: {
-		backgroundColor: '#3498db',
+		backgroundColor: primary,
 		padding: 10,
 		borderRadius: 5,
 	},
