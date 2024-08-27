@@ -9,7 +9,6 @@ import {RootStackScreenProps} from "../types";
 import Button from "../components/Button";
 import {primary} from "../constants/Colors";
 import useCartManagement from "../StateManagement/CartManagement";
-import {useState} from "react";
 import {TabActions} from "@react-navigation/native";
 
 
@@ -18,7 +17,6 @@ export default function AccountScreen({
 										  navigation,
 										  route
 									  }: RootStackScreenProps<"AccountScreen">): JSX.Element {
-	const { dispatch: cartDispatch } = useCartManagement();
 
 	return (
 		<View style={styles.container}>

@@ -15,5 +15,3 @@ export default function Pressable(props: DefautlPressableProps) {
     />
   );
 }
-
-const styles = StyleSheet.create({});

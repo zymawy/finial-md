@@ -26,7 +26,7 @@ export default function SplashScreen() {
   return (
     <SafeAreaView style={styles.contentStyle}>
       <Animated.View style={{ ...styles.imageContainer, opacity: fadeAnim }}>
-        <Image source={imageSplesh} style={styles.image} resizeMode="contain" />
+        <Image source={imageSplesh} style={styles.image} resizeMode="contain" testID="splash-image" />
       </Animated.View>
     </SafeAreaView>
   );

@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
 	useReducer,
 	useMemo,
-	useContext, useEffect, useState
+	useContext, useEffect
 } from "react";
 import reducer from "./Reducer";
 import Actions from "./Actions";

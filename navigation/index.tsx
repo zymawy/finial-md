@@ -38,7 +38,6 @@ import {
 import LinkingConfiguration from "./LinkingConfiguration";
 import Profile from "../components/Profile";
 import Pressable from "../components/Pressable";
-import isAuthenticated from "../hooks/useAuthenticated";
 import SplashScreen from "../screens/SplashScreen";
 import PerfumesScreen from "../screens/PerfumesScreen";
 import OrderScreen from "../screens/OrderScreen";
@@ -101,12 +100,10 @@ const BackButton = () => {
 
 
 function BottomTabNavigator() {
-  const colorScheme = useColorScheme();
   const { state, dispatch } = useCartManagement();
 
   useFocusEffect(
     React.useCallback(() => {
-      // Load cart items when the screen is focused
       const loadCartItems = async () => {
         try {
           let perfumes = await getCartItems();
@@ -144,7 +141,6 @@ function BottomTabNavigator() {
               name="home"
               size={26}
               color={color}
-              // style={{ marginBottom: 10 }}
             />
           ),
           headerLeft: () => (
@@ -155,9 +151,7 @@ function BottomTabNavigator() {
           </Pressable>
           ),
           headerRight: () => (
-            // <Pressable onPress={() => navigation.navigate("Modal")}>
               <Profile />
-            // </Pressable>
           ),
         })}
       />

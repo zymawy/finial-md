@@ -5,10 +5,10 @@
  */
 
 import { LinkingOptions } from "@react-navigation/native";
-import * as Linking from "expo-linking";
+import { createURL } from "expo-linking";
 
 import { RootStackParamList } from "../types";
-const prefix = Linking.createURL("/");
+const prefix = createURL("/");
 
 
 const linking: LinkingOptions<RootStackParamList> = {

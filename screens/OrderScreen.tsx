@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { FlatList, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import {RootStackScreenProps} from "../types";
 import { Text, View } from '../components/Themed';
-import useCartManagement, {getOrders} from "../StateManagement/CartManagement";
+import useCartManagement from "../StateManagement/CartManagement";
 import {primary} from "../constants/Colors";
 
 export default function OrderScreen({

@@ -6,7 +6,7 @@ import { Text } from './Themed';
 const { width } = Dimensions.get('window');
 
 
-export default function Testimonial({ testimonial, parallaxProps }) {
+export default function Testimonial({ testimonial }) {
   
   const stars = Array.from({ length: 5 }, (_, index) => {
     const starIcon = index < testimonial ? 'star' : 'star-o';

@@ -12,7 +12,7 @@ import {primary} from "../constants/Colors";
 import FeaturedProductCarousel from "../components/FeaturedProductCarousel";
 import {StatusBar} from "expo-status-bar";
 import Carousel, { Pagination } from 'react-native-new-snap-carousel';
-import { BANNERS, BRANDS, PERUMES, getRandomPerfumes } from "../data/perfumes";
+import { BANNERS, BRANDS, getRandomPerfumes } from "../data/perfumes";
 import Perfume from "../components/Perfume";
 import { TabActions } from "@react-navigation/native";
 import Testimonial from "../components/Testimonial";
@@ -33,14 +33,14 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<"Home">) {
 
 
 	const renderPerfume = ({ item }) =>
-		<Perfume perfume={item}/>;
+		<Perfume perfume={item} />;
 
 
 	const renderTestimonial = ({ item, index }, parallaxProps) =>
 		<Testimonial testimonial={item} parallaxProps={parallaxProps} />;
 
 	const renderBrands = ({ item }) => (
-			<View style={styles.itemContainer}>
+			<View style={styles.itemContainer} testID="brand-item">
 				<TouchableWithoutFeedback
 				onPress={() => navigation.dispatch(
 					TabActions.jumpTo("PerfumesScreen", {
@@ -59,7 +59,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<"Home">) {
 	);
 	const renderBanner = ({ item }) => {
 		return (
-			<Image source={item} style={{ width: width, height: 200, resizeMode: 'cover' }} />
+			<Image source={item} style={{ width: width, height: 200, resizeMode: 'cover' }} testID="banner-image" />
 		);
 	};
 

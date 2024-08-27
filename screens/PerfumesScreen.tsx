@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import {
 	ActivityIndicator,
@@ -9,12 +8,11 @@ import {
 import { Text, View } from '../components/Themed';
 import {RootStackScreenProps} from "../types";
 import {useEffect, useState} from "react";
-import { primary, secondary } from "../constants/Colors";
+import { primary } from "../constants/Colors";
 import { getPerfumesByReference } from '../data/perfumes';
 import Perfume from '../components/Perfume';
 
 export default function PerfumesScreen({
-										   navigation,
 										   route
 								   }: RootStackScreenProps<"PerfumesScreen">) {
 
@@ -53,7 +51,7 @@ export default function PerfumesScreen({
 	return (
 		perfumes?.data?.length <= 0 ? (
 			<View>
-				<ActivityIndicator size="large" color={primary} />
+				<ActivityIndicator size="large" color={primary} testID="loading-indicator" />
 			</View>
 		) : (
 		<View style={styles.container}>
@@ -105,6 +103,6 @@ const styles = StyleSheet.create({
 		flex: 1
 	},
 	icon: {
-		marginRight: 10, // add some margin to the right of the icon
+		marginRight: 10,
 	},
 });

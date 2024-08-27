@@ -7,11 +7,10 @@ import {
 import Pressable from "./Pressable";
 import { View, Text } from "./Themed";
 import Carousel from 'react-native-new-snap-carousel';
-import useCartManagement, {storeData, getCartItems } from "../StateManagement/CartManagement";
+import useCartManagement, {storeData } from "../StateManagement/CartManagement";
 import Lay from "../constants/Layout";
 import {TabActions, useNavigation} from '@react-navigation/native';
 import Button from "./Button";
-import Actions from "../StateManagement/Actions";
 
 const  screenWidth = Lay.window.width;
 
@@ -102,9 +101,9 @@ const styles = StyleSheet.create({
       width: 0,
     },
     elevation: 1,
-    margin: 10, // Adjusted margin for better spacing
+    margin: 10,
     flex: 1,
-    maxWidth: (screenWidth / 2) - 20, // Adjust width to fit two cards per row
+    maxWidth: (screenWidth / 2) - 20,
     backgroundColor: '#fff',
   },
   infoContainer: {

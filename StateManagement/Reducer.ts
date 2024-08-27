@@ -36,7 +36,6 @@ export default function reducer(state: any, action: any) {
 			totalPrice: action?.items?.reduce((sum, item) => sum + item.totalPrice, 0),
         };
 	  case 'ORDER_PLACED':
-		  console.log(action.orders.length)
 		  return {
 			  ...state,
 			  orders: action.orders,

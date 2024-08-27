@@ -3,7 +3,6 @@ import {
 	Text,
 	Image,
 	StyleSheet,
-	DeviceEventEmitter,
 	Dimensions, Animated,TouchableOpacity
 } from 'react-native';
 import {RootStackScreenProps} from "../types";
@@ -16,7 +15,6 @@ import { primary } from '../constants/Colors';
 const { width } = Dimensions.get('window');
 
 export default function PerfumeScreen({
-	navigation,
    route
   }: RootStackScreenProps<"PerfumeDetail">) {
 	const { state: cartState, dispatch: cartDispatch } = useCartManagement();
@@ -34,7 +32,7 @@ export default function PerfumeScreen({
 
 	const renderItem = ({ item }) => {
 		return (
-			<Image source={{ uri: item }} style={styles.carouselImage} />
+			<Image source={item}  style={styles.carouselImage} />
 		);
 	};
 
@@ -89,6 +87,7 @@ const styles = StyleSheet.create({
 	carouselImage: {
 		width: '100%',
 		height: 200,
+		resizeMode: 'cover'
 	},
 	paginationContainer: {
 		paddingVertical: 8,

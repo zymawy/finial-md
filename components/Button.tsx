@@ -1,8 +1,7 @@
 import React from "react";
 import { StyleSheet, ActivityIndicator } from "react-native";
-import { primary, secondary } from "../constants/Colors";
-import Pressable from "./Pressable";
-import { Text, View } from "./Themed";
+import { primary } from "../constants/Colors";
+import { Text } from "./Themed";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { FontAwesome } from "@expo/vector-icons";
 
