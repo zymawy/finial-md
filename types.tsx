@@ -10,8 +10,7 @@ import {
 } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { DrawerScreenProps } from "@react-navigation/drawer";
-import PerfumesScreen from "./screens/PerfumesScreen";
-import BrandScreen from "./screens/BrandScreen";
+
 
 declare global {
   namespace ReactNavigation {

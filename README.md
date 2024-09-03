@@ -1,11 +1,3 @@
-Below is a sample technical documentation (README.md) that includes instructions on how to run the project and execute tests. It covers the essential steps for developers to set up, run, and test the application.
-
----
-
-# Preform E-commerce App
-
-This is the `Preform E-commerce App`, a React Native-based mobile app for selling perfumes and their brands.
-
 #  Gallery
 
 ![Home Screen](./appendex/home.png)
@@ -24,7 +16,7 @@ This is the `Preform E-commerce App`, a React Native-based mobile app for sellin
 
 To run this project, ensure you have the following installed:
 
-- **Node.js** (Version: >=14.x)
+- **Node.js** (Version: >=18.x)
 - **Yarn** (Version: >=1.22.0)
 - **Expo CLI** (Version: >=6.x)
 - **Xcode** (for iOS development)
@@ -99,14 +91,6 @@ You will also need a valid iOS/Android simulator or device connected.
    yarn web
    ```
 
-### Reset Cache
-
-If you encounter errors while running the project, try resetting the Metro Bundler cache:
-
-```bash
-yarn start --reset-cache
-```
-
 ## Running Tests
 
 ### Jest Unit Tests
@@ -121,19 +105,6 @@ The project includes unit tests using `Jest` and `Testing Library`. To run the t
 
    This command will execute all the unit tests available in the project.
 
-2. **Run tests with watch mode** (useful during development):
-
-   ```bash
-   yarn test --watch
-   ```
-
-3. **Run specific tests**:
-
-   To run a specific test file:
-
-   ```bash
-   yarn test <path-to-test-file>
-   ```
 
 ### Testing with Coverage
 
@@ -145,14 +116,8 @@ yarn test --coverage
 
 This will provide a detailed report on the test coverage for the project.
 
-### Testing Tips
-
-- If a test is failing due to a missing mock, ensure that you have properly mocked modules using `jest.mock()`.
-- For UI testing, make sure that React Native's environment is properly mocked by using `Testing Library React Native`.
 
 ## Project Structure
-
-Here’s a brief overview of the project structure:
 
 ```
 .
@@ -168,6 +133,6 @@ Here’s a brief overview of the project structure:
 ├── jest.config.js               # Jest configuration for testing
 ├── tsconfig.json                # TypeScript configuration file
 └── package.json                 # Project metadata and dependencies
-types                        # TypeScript types and interfaces                    
+types                            # TypeScript types and interfaces                    
 ```
 
